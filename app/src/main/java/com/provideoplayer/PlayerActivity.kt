@@ -801,7 +801,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun showSpeedDialog() {
         val speeds = arrayOf("0.25x", "0.5x", "0.75x", "1.0x (Normal)", "1.25x", "1.5x", "1.75x", "2.0x")
         val speedValues = floatArrayOf(0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f)
-        val currentIndex = speedValues.indexOf(playbackSpeed).takeIf { it >= 0 } ?: 3
+        val currentIndex = speedValues.toList().indexOf(playbackSpeed).takeIf { it >= 0 } ?: 3
         
         MaterialAlertDialogBuilder(this)
             .setTitle("Playback Speed")
