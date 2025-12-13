@@ -36,7 +36,6 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.ui.PlayerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -207,15 +206,8 @@ class PlayerActivity : AppCompatActivity() {
             )
         }
         
-        // Create RenderersFactory that prefers extension decoders (FFmpeg) for unsupported formats
-        // This enables DTS, AC3, EAC3, TrueHD, FLAC software decoding
-        val renderersFactory = DefaultRenderersFactory(this)
-            .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
-        
-        android.util.Log.d("PlayerActivity", "Using FFmpeg extension renderer for audio decoding")
-        
-        // Build ExoPlayer with FFmpeg support
-        player = ExoPlayer.Builder(this, renderersFactory)
+        // Build ExoPlayer
+        player = ExoPlayer.Builder(this)
             .setTrackSelector(trackSelector)
             .setAudioAttributes(
                 AudioAttributes.Builder()
@@ -801,7 +793,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun showSpeedDialog() {
         val speeds = arrayOf("0.25x", "0.5x", "0.75x", "1.0x (Normal)", "1.25x", "1.5x", "1.75x", "2.0x")
         val speedValues = floatArrayOf(0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f)
-        val currentIndex = speedValues.toList().indexOf(playbackSpeed).takeIf { it >= 0 } ?: 3
+        val currentIndex = speedValues.indexOf(playbackSpeed).takeIf { it >= 0 } ?: 3
         
         MaterialAlertDialogBuilder(this)
             .setTitle("Playback Speed")
