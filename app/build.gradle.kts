@@ -64,9 +64,13 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.2.0")
     implementation("androidx.media3:media3-exoplayer-dash:1.2.0")
     implementation("androidx.media3:media3-exoplayer-hls:1.2.0")
+    implementation("androidx.media3:media3-exoplayer-rtsp:1.2.0") // RTSP streaming
     implementation("androidx.media3:media3-ui:1.2.0")
     implementation("androidx.media3:media3-session:1.2.0")
     implementation("androidx.media3:media3-common:1.2.0")
+    // FFmpeg decoder - Pre-built by Jellyfin with DTS, AC3, EAC3, TrueHD, FLAC support
+    // This provides software decoding for audio formats not supported by Android hardware
+    implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.3.1+2")
     
     // Glide for image/thumbnail loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
