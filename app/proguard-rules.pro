@@ -2,23 +2,15 @@
 
 # Keep ExoPlayer classes
 -keep class androidx.media3.** { *; }
--keep interface androidx.media3.** { *; }
+-dontwarn androidx.media3.**
 
-# Keep Glide classes
+# Keep Glide
 -keep public class * implements com.bumptech.glide.module.GlideModule
--keep class * extends com.bumptech.glide.module.AppGlideModule { <init>(...); }
--keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
-    **[] $VALUES;
-    public *;
-}
--keep class com.bumptech.glide.load.data.ParcelFileDescriptorRewinder$InternalRewinder { *** rewind(); }
+-keep class * extends com.bumptech.glide.module.AppGlideModule { *; }
+-keep public enum com.bumptech.glide.load.ImageHeaderParser$** { **[] $VALUES; public *; }
+
+# Keep GPUImage
+-keep class jp.co.cyberagent.android.gpuimage.** { *; }
 
 # Keep model classes
 -keep class com.provideoplayer.model.** { *; }
-
-# General Android optimizations
--optimizationpasses 5
--dontusemixedcaseclassnames
--dontskipnonpubliclibraryclasses
--dontpreverify
--verbose

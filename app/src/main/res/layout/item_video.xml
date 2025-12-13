@@ -1,59 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
-    style="@style/VideoCardStyle"
-    app:cardBackgroundColor="@color/background_card"
+    app:cardBackgroundColor="@color/surface_dark"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?attr/selectableItemBackground">
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Video Thumbnail with Duration Badge -->
+        <!-- Thumbnail Container -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <ImageView
-                android:id="@+id/ivThumbnail"
+                android:id="@+id/videoThumbnail"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="100dp"
                 android:scaleType="centerCrop"
-                android:background="@color/background_surface"
-                tools:src="@color/primary_dark" />
+                android:background="@color/surface_dark"
+                tools:src="@drawable/ic_video_placeholder" />
 
             <!-- Duration Badge -->
             <TextView
-                android:id="@+id/tvDuration"
+                android:id="@+id/videoDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
-                android:layout_margin="8dp"
+                android:layout_margin="6dp"
                 android:background="@drawable/bg_duration_badge"
                 android:paddingHorizontal="6dp"
                 android:paddingVertical="2dp"
-                android:textColor="@color/text_primary"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                tools:text="12:34" />
+                android:text="00:00"
+                android:textColor="@color/white"
+                android:textSize="11sp" />
 
-            <!-- Play Icon Overlay -->
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_play_circle"
-                android:alpha="0.8"
-                app:tint="@color/text_primary" />
+            <!-- Resolution Badge -->
+            <TextView
+                android:id="@+id/videoResolution"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="6dp"
+                android:background="@drawable/bg_resolution_badge"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:text="HD"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:visibility="gone" />
 
         </FrameLayout>
 
@@ -62,51 +64,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:padding="10dp">
 
-            <!-- Title -->
             <TextView
-                android:id="@+id/tvTitle"
+                android:id="@+id/videoTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                tools:text="Amazing Video Title Here" />
+                android:textSize="13sp"
+                tools:text="Video Title Here" />
 
-            <!-- Meta Info Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/videoSize"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:orientation="horizontal">
-
-                <!-- Resolution -->
-                <TextView
-                    android:id="@+id/tvResolution"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_resolution_badge"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="2dp"
-                    android:textColor="@color/primary_light"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    tools:text="1080p" />
-
-                <!-- File Size -->
-                <TextView
-                    android:id="@+id/tvSize"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_weight="1"
-                    android:textColor="@color/text_tertiary"
-                    android:textSize="12sp"
-                    tools:text="256 MB" />
-
-            </LinearLayout>
+                android:layout_marginTop="4dp"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                tools:text="25.5 MB" />
 
         </LinearLayout>
 

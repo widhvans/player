@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/primary"/>
+    <background android:drawable="@color/purple_500"/>
     <foreground>
-        <inset android:inset="25%">
-            <vector
-                android:width="108dp"
-                android:height="108dp"
-                android:viewportWidth="24"
-                android:viewportHeight="24">
-                <path
-                    android:fillColor="#FFFFFF"
-                    android:pathData="M8,5v14l11,-7z"/>
-            </vector>
-        </inset>
+        <inset
+            android:inset="25%"
+            android:drawable="@drawable/ic_play" />
     </foreground>
 </adaptive-icon>

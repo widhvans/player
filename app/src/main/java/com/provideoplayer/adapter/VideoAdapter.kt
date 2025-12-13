@@ -14,58 +14,67 @@ import com.provideoplayer.R
 import com.provideoplayer.model.VideoItem
 
 /**
- * RecyclerView adapter for displaying video items in a grid
+ * RecyclerView adapter for displaying video list
  */
 class VideoAdapter(
-    private val onVideoClick: (VideoItem) -> Unit
+    private val onVideoClick: (VideoItem, Int) -> Unit,
+    private val onVideoLongClick: (VideoItem) -> Boolean
 ) : ListAdapter<VideoItem, VideoAdapter.VideoViewHolder>(VideoDiffCallback()) {
-    
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_video, parent, false)
         return VideoViewHolder(view)
     }
-    
+
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), position)
     }
-    
+
     inner class VideoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val ivThumbnail: ImageView = itemView.findViewById(R.id.ivThumbnail)
-        private val tvDuration: TextView = itemView.findViewById(R.id.tvDuration)
-        private val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
-        private val tvResolution: TextView = itemView.findViewById(R.id.tvResolution)
-        private val tvSize: TextView = itemView.findViewById(R.id.tvSize)
-        
-        fun bind(video: VideoItem) {
+        private val thumbnail: ImageView = itemView.findViewById(R.id.videoThumbnail)
+        private val title: TextView = itemView.findViewById(R.id.videoTitle)
+        private val duration: TextView = itemView.findViewById(R.id.videoDuration)
+        private val size: TextView = itemView.findViewById(R.id.videoSize)
+        private val resolution: TextView = itemView.findViewById(R.id.videoResolution)
+
+        fun bind(video: VideoItem, position: Int) {
+            title.text = video.title
+            duration.text = video.getFormattedDuration()
+            size.text = video.getFormattedSize()
+            
+            // Show resolution if available
+            if (video.resolution.isNotEmpty()) {
+                resolution.visibility = View.VISIBLE
+                resolution.text = video.resolution
+            } else {
+                resolution.visibility = View.GONE
+            }
+
             // Load thumbnail with Glide
             Glide.with(itemView.context)
                 .load(video.uri)
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
-                .placeholder(R.drawable.ic_video)
-                .error(R.drawable.ic_video)
-                .into(ivThumbnail)
-            
-            tvDuration.text = video.getFormattedDuration()
-            tvTitle.text = video.title
-            tvResolution.text = video.getResolutionString()
-            tvSize.text = video.getFormattedSize()
-            
+                .placeholder(R.drawable.ic_video_placeholder)
+                .error(R.drawable.ic_video_placeholder)
+                .into(thumbnail)
+
             itemView.setOnClickListener {
-                onVideoClick(video)
+                onVideoClick(video, position)
+            }
+            
+            itemView.setOnLongClickListener {
+                onVideoLongClick(video)
             }
         }
     }
-    
-    /**
-     * DiffUtil callback for efficient list updates
-     */
-    private class VideoDiffCallback : DiffUtil.ItemCallback<VideoItem>() {
+
+    class VideoDiffCallback : DiffUtil.ItemCallback<VideoItem>() {
         override fun areItemsTheSame(oldItem: VideoItem, newItem: VideoItem): Boolean {
             return oldItem.id == newItem.id
         }
-        
+
         override fun areContentsTheSame(oldItem: VideoItem, newItem: VideoItem): Boolean {
             return oldItem == newItem
         }

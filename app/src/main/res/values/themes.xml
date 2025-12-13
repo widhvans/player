@@ -1,91 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base Theme -->
+    <!-- Base Dark Theme -->
     <style name="Theme.ProVideoPlayer" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
-        <item name="colorPrimaryDark">@color/primary_dark</item>
-        <item name="colorAccent">@color/accent</item>
-        <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/black</item>
         <item name="android:colorBackground">@color/background_dark</item>
-        <item name="colorSurface">@color/background_surface</item>
+        <item name="colorSurface">@color/surface_dark</item>
         <item name="colorOnSurface">@color/text_primary</item>
-        <item name="colorSurfaceVariant">@color/background_card</item>
-        <item name="android:textColorPrimary">@color/text_primary</item>
-        <item name="android:textColorSecondary">@color/text_secondary</item>
         <item name="android:statusBarColor">@color/background_dark</item>
         <item name="android:navigationBarColor">@color/background_dark</item>
-        <item name="android:windowBackground">@color/background_dark</item>
-        <item name="colorControlNormal">@color/text_secondary</item>
-        <item name="colorControlActivated">@color/primary</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <!-- Fullscreen Theme for Player -->
-    <style name="Theme.ProVideoPlayer.Fullscreen" parent="Theme.ProVideoPlayer">
+    <!-- Player Theme (Fullscreen) -->
+    <style name="Theme.ProVideoPlayer.Player" parent="Theme.ProVideoPlayer">
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:statusBarColor">@color/transparent</item>
-        <item name="android:navigationBarColor">@color/transparent</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-    </style>
-
-    <!-- Card Style -->
-    <style name="VideoCardStyle" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardBackgroundColor">@color/background_card</item>
-        <item name="cardCornerRadius">16dp</item>
-        <item name="cardElevation">4dp</item>
-        <item name="android:clickable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="rippleColor">@color/ripple_color</item>
-    </style>
-
-    <!-- Button Styles -->
-    <style name="PrimaryButton" parent="Widget.Material3.Button">
-        <item name="android:textColor">@color/text_primary</item>
-        <item name="backgroundTint">@color/primary</item>
-        <item name="cornerRadius">12dp</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="android:paddingStart">24dp</item>
-        <item name="android:paddingEnd">24dp</item>
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
-    </style>
-
-    <style name="IconButton" parent="Widget.Material3.Button.IconButton">
-        <item name="iconTint">@color/text_primary</item>
-        <item name="rippleColor">@color/ripple_color</item>
-    </style>
-
-    <!-- Text Styles -->
-    <style name="TextTitle" parent="TextAppearance.Material3.TitleLarge">
-        <item name="android:textColor">@color/text_primary</item>
-        <item name="android:textSize">20sp</item>
-        <item name="fontFamily">sans-serif-medium</item>
-    </style>
-
-    <style name="TextSubtitle" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">@color/text_secondary</item>
-        <item name="android:textSize">14sp</item>
-    </style>
-
-    <style name="TextCaption" parent="TextAppearance.Material3.BodySmall">
-        <item name="android:textColor">@color/text_tertiary</item>
-        <item name="android:textSize">12sp</item>
-    </style>
-
-    <!-- Dialog Style -->
-    <style name="TrackSelectionDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="android:background">@color/background_elevated</item>
-        <item name="colorSurface">@color/background_elevated</item>
-        <item name="colorOnSurface">@color/text_primary</item>
-    </style>
-
-    <!-- Seekbar Style for Player -->
-    <style name="PlayerSeekbar" parent="Widget.AppCompat.SeekBar">
-        <item name="android:progressTint">@color/primary</item>
-        <item name="android:thumbTint">@color/primary</item>
-        <item name="android:progressBackgroundTint">@color/seekbar_background</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 </resources>

@@ -1,47 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Colors - Deep Purple/Violet Theme -->
-    <color name="primary">#6C5CE7</color>
-    <color name="primary_dark">#5B4ED1</color>
-    <color name="primary_light">#A29BFE</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
     
-    <!-- Accent Colors -->
-    <color name="accent">#00CEC9</color>
-    <color name="accent_light">#81ECEC</color>
-    
-    <!-- Background Colors -->
-    <color name="background_dark">#0D0D0F</color>
-    <color name="background_card">#1A1A1F</color>
-    <color name="background_surface">#141417</color>
-    <color name="background_elevated">#232329</color>
+    <!-- Dark Theme Colors -->
+    <color name="background_dark">#FF121212</color>
+    <color name="surface_dark">#FF1E1E1E</color>
+    <color name="surface_dark_elevated">#FF2D2D2D</color>
     
     <!-- Text Colors -->
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B0B0B8</color>
-    <color name="text_tertiary">#6B6B75</color>
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#B3FFFFFF</color>
+    <color name="text_hint">#80FFFFFF</color>
+    
+    <!-- Accent Colors -->
+    <color name="accent_primary">#FF6200EE</color>
+    <color name="accent_secondary">#FF03DAC5</color>
     
     <!-- Player Colors -->
-    <color name="player_background">#000000</color>
     <color name="player_control_bg">#80000000</color>
-    <color name="seekbar_progress">#6C5CE7</color>
-    <color name="seekbar_buffered">#4D6C5CE7</color>
-    <color name="seekbar_background">#33FFFFFF</color>
-    
-    <!-- Status Colors -->
-    <color name="success">#00B894</color>
-    <color name="warning">#FDCB6E</color>
-    <color name="error">#FF6B6B</color>
-    
-    <!-- Overlay Colors -->
-    <color name="overlay_light">#1AFFFFFF</color>
-    <color name="overlay_dark">#80000000</color>
-    <color name="ripple_color">#336C5CE7</color>
-    
-    <!-- Gradient Colors -->
-    <color name="gradient_start">#6C5CE7</color>
-    <color name="gradient_end">#00CEC9</color>
-    
-    <!-- Transparent -->
-    <color name="transparent">#00000000</color>
-    <color name="semi_transparent_black">#B3000000</color>
+    <color name="player_seekbar">#FF6200EE</color>
 </resources>

@@ -3,21 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Storage Permissions -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
         android:maxSdkVersion="29"
         tools:ignore="ScopedStorage" />
-    
-    <!-- Android 13+ Media Permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     
-    <!-- Network for streaming (optional) -->
+    <!-- Network Streaming -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     
-    <!-- Keep screen on during playback -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Picture-in-Picture -->
+    <uses-feature android:name="android.software.picture_in_picture" android:required="false" />
+    
+    <!-- Hardware Features -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -26,9 +28,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ProVideoPlayer"
+        android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
-        tools:targetApi="34">
+        android:networkSecurityConfig="@xml/network_security_config"
+        tools:targetApi="31">
 
+        <!-- Main Activity - Video Browser -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -37,8 +42,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            
-            <!-- Handle video file intents -->
+            <!-- Open video files from file managers -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -46,14 +50,31 @@
             </intent-filter>
         </activity>
 
+        <!-- Player Activity - Video Playback -->
         <activity
             android:name=".PlayerActivity"
-            android:exported="false"
+            android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:theme="@style/Theme.ProVideoPlayer.Fullscreen"
+            android:theme="@style/Theme.ProVideoPlayer.Player"
+            android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
-            android:launchMode="singleTop" />
+            android:resizeableActivity="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:scheme="rtsp" />
+                <data android:scheme="rtmp" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+        </activity>
+        
+        <!-- Network Stream Activity -->
+        <activity
+            android:name=".NetworkStreamActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ProVideoPlayer" />
 
     </application>
-
 </manifest>

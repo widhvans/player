@@ -1,6 +1,8 @@
 package com.provideoplayer.model
 
 import android.net.Uri
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 /**
  * Data class representing a video file
@@ -10,58 +12,31 @@ data class VideoItem(
     val title: String,
     val path: String,
     val uri: Uri,
-    val duration: Long,      // Duration in milliseconds
-    val size: Long,          // Size in bytes
-    val width: Int,          // Video width
-    val height: Int,         // Video height
-    val folderName: String,  // Parent folder name
-    val folderPath: String,  // Parent folder path
-    val dateAdded: Long,     // Date added timestamp
-    val dateModified: Long   // Date modified timestamp
+    val duration: Long,
+    val size: Long,
+    val resolution: String,
+    val dateAdded: Long,
+    val folderName: String,
+    val folderId: Long,
+    val mimeType: String
 ) {
-    /**
-     * Get formatted duration string (HH:MM:SS or MM:SS)
-     */
     fun getFormattedDuration(): String {
-        val totalSeconds = duration / 1000
-        val hours = totalSeconds / 3600
-        val minutes = (totalSeconds % 3600) / 60
-        val seconds = totalSeconds % 60
-        
+        val hours = duration / 3600000
+        val minutes = (duration % 3600000) / 60000
+        val seconds = (duration % 60000) / 1000
         return if (hours > 0) {
-            String.format("%d:%02d:%02d", hours, minutes, seconds)
+            String.format("%02d:%02d:%02d", hours, minutes, seconds)
         } else {
             String.format("%02d:%02d", minutes, seconds)
         }
     }
     
-    /**
-     * Get formatted file size string
-     */
     fun getFormattedSize(): String {
-        val kb = size / 1024.0
-        val mb = kb / 1024.0
-        val gb = mb / 1024.0
-        
         return when {
-            gb >= 1.0 -> String.format("%.2f GB", gb)
-            mb >= 1.0 -> String.format("%.1f MB", mb)
-            else -> String.format("%.0f KB", kb)
-        }
-    }
-    
-    /**
-     * Get resolution string (e.g., "1080p", "720p", "4K")
-     */
-    fun getResolutionString(): String {
-        return when {
-            height >= 2160 -> "4K"
-            height >= 1440 -> "2K"
-            height >= 1080 -> "1080p"
-            height >= 720 -> "720p"
-            height >= 480 -> "480p"
-            height >= 360 -> "360p"
-            else -> "${height}p"
+            size >= 1073741824 -> String.format("%.2f GB", size / 1073741824.0)
+            size >= 1048576 -> String.format("%.2f MB", size / 1048576.0)
+            size >= 1024 -> String.format("%.2f KB", size / 1024.0)
+            else -> "$size B"
         }
     }
 }
@@ -69,9 +44,38 @@ data class VideoItem(
 /**
  * Data class representing a folder containing videos
  */
-data class VideoFolder(
+data class FolderItem(
+    val id: Long,
     val name: String,
     val path: String,
-    val videoCount: Int,
-    val videos: MutableList<VideoItem> = mutableListOf()
+    val videoCount: Int
 )
+
+/**
+ * Enum for video filter types
+ */
+enum class VideoFilter(val displayName: String) {
+    NONE("Normal"),
+    GRAYSCALE("Grayscale"),
+    SEPIA("Sepia"),
+    NEGATIVE("Negative"),
+    BRIGHTNESS("Bright"),
+    CONTRAST("High Contrast"),
+    SATURATION("Vivid"),
+    SHARPEN("Sharp"),
+    VIGNETTE("Vignette"),
+    WARM("Warm"),
+    COOL("Cool")
+}
+
+/**
+ * Enum for aspect ratio modes
+ */
+enum class AspectRatioMode(val displayName: String) {
+    FIT("Fit"),
+    FILL("Fill"),
+    STRETCH("Stretch"),
+    RATIO_16_9("16:9"),
+    RATIO_4_3("4:3"),
+    RATIO_21_9("21:9")
+}

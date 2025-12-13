@@ -3,53 +3,53 @@ package com.provideoplayer.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.provideoplayer.R
-import com.provideoplayer.model.VideoFolder
+import com.provideoplayer.model.FolderItem
 
 /**
- * RecyclerView adapter for displaying video folders
+ * RecyclerView adapter for displaying folder list
  */
 class FolderAdapter(
-    private val onFolderClick: (VideoFolder) -> Unit
-) : ListAdapter<VideoFolder, FolderAdapter.FolderViewHolder>(FolderDiffCallback()) {
-    
+    private val onFolderClick: (FolderItem) -> Unit
+) : ListAdapter<FolderItem, FolderAdapter.FolderViewHolder>(FolderDiffCallback()) {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_folder, parent, false)
         return FolderViewHolder(view)
     }
-    
+
     override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
-    
+
     inner class FolderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvFolderName: TextView = itemView.findViewById(R.id.tvFolderName)
-        private val tvVideoCount: TextView = itemView.findViewById(R.id.tvVideoCount)
-        
-        fun bind(folder: VideoFolder) {
-            tvFolderName.text = folder.name
-            tvVideoCount.text = "${folder.videoCount} videos"
-            
+        private val icon: ImageView = itemView.findViewById(R.id.folderIcon)
+        private val name: TextView = itemView.findViewById(R.id.folderName)
+        private val count: TextView = itemView.findViewById(R.id.videoCount)
+
+        fun bind(folder: FolderItem) {
+            name.text = folder.name
+            count.text = "${folder.videoCount} videos"
+            icon.setImageResource(R.drawable.ic_folder)
+
             itemView.setOnClickListener {
                 onFolderClick(folder)
             }
         }
     }
-    
-    /**
-     * DiffUtil callback for efficient list updates
-     */
-    private class FolderDiffCallback : DiffUtil.ItemCallback<VideoFolder>() {
-        override fun areItemsTheSame(oldItem: VideoFolder, newItem: VideoFolder): Boolean {
-            return oldItem.path == newItem.path
+
+    class FolderDiffCallback : DiffUtil.ItemCallback<FolderItem>() {
+        override fun areItemsTheSame(oldItem: FolderItem, newItem: FolderItem): Boolean {
+            return oldItem.id == newItem.id
         }
-        
-        override fun areContentsTheSame(oldItem: VideoFolder, newItem: VideoFolder): Boolean {
+
+        override fun areContentsTheSame(oldItem: FolderItem, newItem: FolderItem): Boolean {
             return oldItem == newItem
         }
     }

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="Search"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_sort"
+        android:icon="@drawable/ic_sort"
+        android:title="Sort"
+        app:showAsAction="ifRoom">
+        
+        <menu>
+            <item
+                android:id="@+id/action_sort_name"
+                android:title="Sort by Name" />
+            <item
+                android:id="@+id/action_sort_date"
+                android:title="Sort by Date" />
+            <item
+                android:id="@+id/action_sort_size"
+                android:title="Sort by Size" />
+            <item
+                android:id="@+id/action_sort_duration"
+                android:title="Sort by Duration" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/action_view"
+        android:icon="@drawable/ic_view_grid"
+        android:title="View"
+        app:showAsAction="ifRoom">
+        
+        <menu>
+            <item
+                android:id="@+id/action_view_grid"
+                android:title="Grid View" />
+            <item
+                android:id="@+id/action_view_list"
+                android:title="List View" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Settings"
+        app:showAsAction="never" />
+
+</menu>
