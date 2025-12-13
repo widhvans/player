@@ -262,6 +262,15 @@ class PlayerActivity : AppCompatActivity() {
 
     private val playerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(state: Int) {
+            val stateName = when (state) {
+                Player.STATE_IDLE -> "IDLE"
+                Player.STATE_BUFFERING -> "BUFFERING"
+                Player.STATE_READY -> "READY"
+                Player.STATE_ENDED -> "ENDED"
+                else -> "UNKNOWN"
+            }
+            android.util.Log.d("PlayerActivity", "Playback state changed: $stateName")
+            
             when (state) {
                 Player.STATE_BUFFERING -> {
                     binding.progressBar.visibility = View.VISIBLE
@@ -269,6 +278,7 @@ class PlayerActivity : AppCompatActivity() {
                 Player.STATE_READY -> {
                     binding.progressBar.visibility = View.GONE
                     updateDuration()
+                    android.util.Log.d("PlayerActivity", "Video ready - Duration: ${player?.duration}")
                 }
                 Player.STATE_ENDED -> {
                     if (currentIndex < playlist.size - 1) {
@@ -276,12 +286,16 @@ class PlayerActivity : AppCompatActivity() {
                     }
                 }
                 Player.STATE_IDLE -> {
-                    // Handle idle state
+                    // Check if there's an error
+                    player?.playerError?.let { error ->
+                        android.util.Log.e("PlayerActivity", "Player error in IDLE: ${error.message}", error)
+                    }
                 }
             }
         }
         
         override fun onIsPlayingChanged(isPlaying: Boolean) {
+            android.util.Log.d("PlayerActivity", "isPlaying changed: $isPlaying")
             updatePlayPauseButton()
             if (isPlaying) {
                 startProgressUpdates()
@@ -293,18 +307,24 @@ class PlayerActivity : AppCompatActivity() {
         }
         
         override fun onPlayerError(error: PlaybackException) {
+            android.util.Log.e("PlayerActivity", "Player error: ${error.errorCodeName} - ${error.message}", error)
             Toast.makeText(
                 this@PlayerActivity,
                 "Playback error: ${error.message}",
                 Toast.LENGTH_LONG
             ).show()
+            binding.progressBar.visibility = View.GONE
         }
         
         override fun onTracksChanged(tracks: Tracks) {
-            // Update track info when tracks become available
+            android.util.Log.d("PlayerActivity", "Tracks changed - groups: ${tracks.groups.size}")
+            for (group in tracks.groups) {
+                android.util.Log.d("PlayerActivity", "Track type: ${group.type}, length: ${group.length}")
+            }
         }
         
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+            android.util.Log.d("PlayerActivity", "Media item transition - URI: ${mediaItem?.localConfiguration?.uri}")
             currentIndex = player?.currentMediaItemIndex ?: 0
             binding.videoTitle.text = playlistTitles.getOrNull(currentIndex) ?: "Video"
             updatePrevNextButtons()
