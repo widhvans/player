@@ -138,28 +138,69 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun parseIntent() {
-        intent?.let {
-            val uri = it.getStringExtra(EXTRA_VIDEO_URI)
-            val title = it.getStringExtra(EXTRA_VIDEO_TITLE) ?: "Video"
-            currentIndex = it.getIntExtra(EXTRA_VIDEO_POSITION, 0)
-            playlist = it.getStringArrayListExtra(EXTRA_PLAYLIST) ?: listOf(uri ?: "")
-            playlistTitles = it.getStringArrayListExtra(EXTRA_PLAYLIST_TITLES) ?: listOf(title)
-            isNetworkStream = it.getBooleanExtra(EXTRA_IS_NETWORK_STREAM, false)
+        intent?.let { intentData ->
+            val uri = intentData.getStringExtra(EXTRA_VIDEO_URI)
+            val title = intentData.getStringExtra(EXTRA_VIDEO_TITLE) ?: "Video"
+            currentIndex = intentData.getIntExtra(EXTRA_VIDEO_POSITION, 0)
+            isNetworkStream = intentData.getBooleanExtra(EXTRA_IS_NETWORK_STREAM, false)
             
-            // Handle direct video URI (from file manager)
-            if (uri == null && it.data != null) {
-                playlist = listOf(it.data.toString())
-                playlistTitles = listOf(it.data?.lastPathSegment ?: "Video")
+            // Get playlist from intent
+            val playlistFromIntent = intentData.getStringArrayListExtra(EXTRA_PLAYLIST)
+            val titlesFromIntent = intentData.getStringArrayListExtra(EXTRA_PLAYLIST_TITLES)
+            
+            // Handle different scenarios
+            when {
+                // Case 1: Playlist provided in extras
+                !playlistFromIntent.isNullOrEmpty() -> {
+                    playlist = playlistFromIntent.filter { it.isNotEmpty() }
+                    playlistTitles = titlesFromIntent ?: playlist.map { "Video" }
+                }
+                // Case 2: Single URI provided
+                !uri.isNullOrEmpty() -> {
+                    playlist = listOf(uri)
+                    playlistTitles = listOf(title)
+                    currentIndex = 0
+                }
+                // Case 3: Intent data (from file manager or external app)
+                intentData.data != null -> {
+                    playlist = listOf(intentData.data.toString())
+                    playlistTitles = listOf(intentData.data?.lastPathSegment ?: "Video")
+                    currentIndex = 0
+                }
+                else -> {
+                    // No video source
+                    playlist = emptyList()
+                    playlistTitles = emptyList()
+                }
             }
             
+            // Validate currentIndex
+            currentIndex = currentIndex.coerceIn(0, (playlist.size - 1).coerceAtLeast(0))
+            
+            // Set title
             binding.videoTitle.text = playlistTitles.getOrNull(currentIndex) ?: "Video"
+            
+            // Debug log
+            android.util.Log.d("PlayerActivity", "Playlist size: ${playlist.size}, currentIndex: $currentIndex")
+            if (playlist.isNotEmpty()) {
+                android.util.Log.d("PlayerActivity", "First URI: ${playlist[0]}")
+            }
         }
     }
 
     private fun initializePlayer() {
-        // Track selector for audio/subtitle selection
+        // Check if we have videos to play
+        if (playlist.isEmpty()) {
+            Toast.makeText(this, "No video to play", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+        
+        // Track selector - NO quality restrictions
         trackSelector = DefaultTrackSelector(this).apply {
-            setParameters(buildUponParameters().setMaxVideoSizeSd())
+            setParameters(buildUponParameters()
+                .setForceHighestSupportedBitrate(true) // Always use best quality
+            )
         }
         
         // Build ExoPlayer
