@@ -351,12 +351,8 @@ class PlayerActivity : AppCompatActivity() {
         
         override fun onPlayerError(error: PlaybackException) {
             android.util.Log.e("PlayerActivity", "Player error: ${error.errorCodeName} - ${error.message}", error)
-            Toast.makeText(
-                this@PlayerActivity,
-                "Playback error: ${error.message}",
-                Toast.LENGTH_LONG
-            ).show()
             binding.progressBar.visibility = View.GONE
+            showDebugDialog(error)
         }
         
         override fun onTracksChanged(tracks: Tracks) {
@@ -372,6 +368,97 @@ class PlayerActivity : AppCompatActivity() {
             binding.videoTitle.text = playlistTitles.getOrNull(currentIndex) ?: "Video"
             updatePrevNextButtons()
         }
+    }
+    
+    private fun showDebugDialog(error: PlaybackException? = null) {
+        val currentUri = playlist.getOrNull(currentIndex) ?: "N/A"
+        val mimeType = inferMimeType(currentUri) ?: "Auto-detect"
+        
+        val playerState = when (player?.playbackState) {
+            Player.STATE_IDLE -> "IDLE"
+            Player.STATE_BUFFERING -> "BUFFERING"
+            Player.STATE_READY -> "READY"
+            Player.STATE_ENDED -> "ENDED"
+            else -> "UNKNOWN"
+        }
+        
+        val videoFormat = player?.videoFormat
+        val audioFormat = player?.audioFormat
+        
+        val trackInfo = buildString {
+            val tracks = player?.currentTracks
+            tracks?.groups?.forEach { group ->
+                val typeName = when (group.type) {
+                    C.TRACK_TYPE_VIDEO -> "VIDEO"
+                    C.TRACK_TYPE_AUDIO -> "AUDIO"
+                    C.TRACK_TYPE_TEXT -> "TEXT"
+                    else -> "OTHER"
+                }
+                appendLine("• $typeName: ${group.length} track(s), selected=${group.isSelected}")
+            }
+            if (isEmpty()) append("No tracks found!")
+        }
+        
+        val debugInfo = buildString {
+            appendLine("=== VIDEO INFO ===")
+            appendLine("URI: $currentUri")
+            appendLine("MIME Type: $mimeType")
+            appendLine("Is Network: $isNetworkStream")
+            appendLine()
+            appendLine("=== PLAYER STATE ===")
+            appendLine("State: $playerState")
+            appendLine("Duration: ${player?.duration ?: 0}ms")
+            appendLine("Position: ${player?.currentPosition ?: 0}ms")
+            appendLine("PlayWhenReady: ${player?.playWhenReady}")
+            appendLine("IsPlaying: ${player?.isPlaying}")
+            appendLine()
+            appendLine("=== VIDEO FORMAT ===")
+            if (videoFormat != null) {
+                appendLine("Codec: ${videoFormat.codecs ?: "N/A"}")
+                appendLine("Resolution: ${videoFormat.width}x${videoFormat.height}")
+                appendLine("Frame Rate: ${videoFormat.frameRate}")
+                appendLine("MIME: ${videoFormat.sampleMimeType}")
+            } else {
+                appendLine("No video format detected!")
+            }
+            appendLine()
+            appendLine("=== AUDIO FORMAT ===")
+            if (audioFormat != null) {
+                appendLine("Codec: ${audioFormat.codecs ?: "N/A"}")
+                appendLine("Channels: ${audioFormat.channelCount}")
+                appendLine("Sample Rate: ${audioFormat.sampleRate}")
+            } else {
+                appendLine("No audio format detected!")
+            }
+            appendLine()
+            appendLine("=== TRACKS ===")
+            append(trackInfo)
+            
+            if (error != null) {
+                appendLine()
+                appendLine("=== ERROR ===")
+                appendLine("Code: ${error.errorCode}")
+                appendLine("Name: ${error.errorCodeName}")
+                appendLine("Message: ${error.message}")
+                appendLine("Cause: ${error.cause?.message ?: "None"}")
+            }
+        }
+        
+        MaterialAlertDialogBuilder(this)
+            .setTitle("🔍 Debug Info")
+            .setMessage(debugInfo)
+            .setPositiveButton("Copy") { _, _ ->
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("Debug Info", debugInfo)
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(this, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Close", null)
+            .setNeutralButton("Retry") { _, _ ->
+                player?.prepare()
+                player?.play()
+            }
+            .show()
     }
 
     private fun setupGestureControls() {
@@ -497,6 +584,12 @@ class PlayerActivity : AppCompatActivity() {
         // Settings button
         binding.btnSettings.setOnClickListener {
             showSettingsMenu()
+        }
+        
+        // Long press on settings for debug info
+        binding.btnSettings.setOnLongClickListener {
+            showDebugDialog()
+            true
         }
         
         // Subtitle button
