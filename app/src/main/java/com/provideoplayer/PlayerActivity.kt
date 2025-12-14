@@ -230,10 +230,12 @@ class PlayerActivity : AppCompatActivity() {
                 true // Handle audio focus
             )
             .setHandleAudioBecomingNoisy(true)
+            .setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT)
             .build()
             .also { exoPlayer ->
                 binding.playerView.player = exoPlayer
                 binding.playerView.useController = false // Use custom controls
+                binding.playerView.keepScreenOn = true
                 
                 // Add listener
                 exoPlayer.addListener(playerListener)
