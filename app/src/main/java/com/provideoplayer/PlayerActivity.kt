@@ -242,19 +242,32 @@ class PlayerActivity : AppCompatActivity() {
                 return@let
             }
             
-            val mediaItems = playlist.mapNotNull { uriString ->
+            val mediaItems = playlist.mapNotNull { pathOrUri ->
                 try {
-                    val uri = Uri.parse(uriString)
-                    
-                    // Get MIME type - use ContentResolver for content:// URIs
-                    val mimeType = when {
-                        uriString.startsWith("content://") -> {
-                            contentResolver.getType(uri) ?: inferMimeType(uriString)
+                    // Determine if it's a file path or URI
+                    val uri = when {
+                        pathOrUri.startsWith("/") -> {
+                            // It's a file path
+                            Uri.fromFile(java.io.File(pathOrUri))
                         }
-                        else -> inferMimeType(uriString)
+                        pathOrUri.startsWith("content://") || pathOrUri.startsWith("http://") || pathOrUri.startsWith("https://") -> {
+                            // It's already a URI
+                            Uri.parse(pathOrUri)
+                        }
+                        else -> {
+                            // Try to parse as URI
+                            Uri.parse(pathOrUri)
+                        }
                     }
                     
-                    android.util.Log.d("PlayerActivity", "Loading URI: $uriString, MIME: $mimeType")
+                    // Get MIME type
+                    val mimeType = when {
+                        pathOrUri.startsWith("/") -> inferMimeType(pathOrUri)
+                        pathOrUri.startsWith("content://") -> contentResolver.getType(uri) ?: inferMimeType(pathOrUri)
+                        else -> inferMimeType(pathOrUri)
+                    }
+                    
+                    android.util.Log.d("PlayerActivity", "Loading: $pathOrUri -> URI: $uri, MIME: $mimeType")
                     
                     MediaItem.Builder()
                         .setUri(uri)
@@ -265,7 +278,7 @@ class PlayerActivity : AppCompatActivity() {
                         }
                         .build()
                 } catch (e: Exception) {
-                    android.util.Log.e("PlayerActivity", "Failed to parse URI: $uriString", e)
+                    android.util.Log.e("PlayerActivity", "Failed to parse: $pathOrUri", e)
                     null
                 }
             }
