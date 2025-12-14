@@ -699,7 +699,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun showSpeedDialog() {
         val speeds = arrayOf("0.25x", "0.5x", "0.75x", "1.0x (Normal)", "1.25x", "1.5x", "1.75x", "2.0x")
         val speedValues = floatArrayOf(0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f)
-        val currentIndex = speedValues.indexOf(playbackSpeed).takeIf { it >= 0 } ?: 3
+        val currentIndex = speedValues.toList().indexOf(playbackSpeed).takeIf { it >= 0 } ?: 3
         
         MaterialAlertDialogBuilder(this)
             .setTitle("Playback Speed")
@@ -792,8 +792,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun showAudioTrackDialog() {
         val tracks = player?.currentTracks ?: return
-        // Store track label, group, and track index within the group
-        val audioTracks = mutableListOf<Triple<String, Tracks.Group, Int>>()
+        val audioTracks = mutableListOf<Pair<String, Tracks.Group>>()
         
         for (group in tracks.groups) {
             if (group.type == C.TRACK_TYPE_AUDIO) {
@@ -808,8 +807,7 @@ class PlayerActivity : AppCompatActivity() {
                             append(" ${format.sampleRate / 1000}kHz")
                         }
                     }
-                    // Store track index 'i' for proper selection
-                    audioTracks.add(Triple(label, group, i))
+                    audioTracks.add(label to group)
                 }
             }
         }
@@ -824,14 +822,13 @@ class PlayerActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this)
             .setTitle("Audio Track")
             .setItems(names) { dialog, which ->
-                val (_, group, trackIndex) = audioTracks[which]
+                val group = audioTracks[which].second
                 trackSelector.setParameters(
                     trackSelector.buildUponParameters()
                         .setOverrideForType(
-                            TrackSelectionOverride(group.mediaTrackGroup, trackIndex)
+                            TrackSelectionOverride(group.mediaTrackGroup, 0)
                         )
                 )
-                Toast.makeText(this, "Audio track changed", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
             }
             .show()
@@ -920,8 +917,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun updateProgress() {
         player?.let {
             val position = it.currentPosition
-            // Check for C.TIME_UNSET which ExoPlayer uses for unknown duration
-            val duration = it.duration.takeIf { d -> d > 0 && d != C.TIME_UNSET } ?: 0
+            val duration = it.duration.takeIf { d -> d > 0 } ?: 0
             
             binding.currentTime.text = formatTime(position)
             binding.totalTime.text = formatTime(duration)
@@ -934,11 +930,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private fun updateDuration() {
         player?.let {
-            val duration = it.duration
-            // Only update if duration is valid (not C.TIME_UNSET)
-            if (duration > 0 && duration != C.TIME_UNSET) {
-                binding.totalTime.text = formatTime(duration)
-            }
+            binding.totalTime.text = formatTime(it.duration)
         }
     }
 
