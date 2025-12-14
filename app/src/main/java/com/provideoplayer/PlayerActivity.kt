@@ -202,34 +202,39 @@ class PlayerActivity : AppCompatActivity() {
         // Track selector - NO quality restrictions
         trackSelector = DefaultTrackSelector(this).apply {
             setParameters(buildUponParameters()
-                .setForceHighestSupportedBitrate(true) // Always use best quality
+                .setForceHighestSupportedBitrate(true)
             )
         }
         
-        // Build ExoPlayer - let ExoPlayer use default data sources which handle content:// properly
+        // Create DataSource.Factory with context for content:// URI support
+        val dataSourceFactory = DefaultDataSource.Factory(this)
+        
+        // Create MediaSource.Factory with extractors for all formats
+        val mediaSourceFactory = DefaultMediaSourceFactory(this)
+            .setDataSourceFactory(dataSourceFactory)
+        
+        // Build ExoPlayer with proper configuration
         player = ExoPlayer.Builder(this)
             .setTrackSelector(trackSelector)
+            .setMediaSourceFactory(mediaSourceFactory)
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
                     .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
                     .build(),
-                true // Handle audio focus
+                true
             )
             .setHandleAudioBecomingNoisy(true)
             .build()
             .also { exoPlayer ->
                 binding.playerView.player = exoPlayer
-                binding.playerView.useController = false // Use custom controls
+                binding.playerView.useController = false
                 binding.playerView.keepScreenOn = true
                 
-                // Add listener
                 exoPlayer.addListener(playerListener)
                 
-                // Load playlist
+                // Load and prepare
                 loadPlaylist()
-                
-                // Start playback
                 exoPlayer.prepare()
                 exoPlayer.playWhenReady = true
             }
