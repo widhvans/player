@@ -369,18 +369,20 @@ class MainActivity : AppCompatActivity() {
         val videoIndex = playlist.indexOfFirst { it.id == video.id }.takeIf { it >= 0 } ?: position
         
         val intent = Intent(this, PlayerActivity::class.java).apply {
-            // Use file path instead of content URI for better compatibility
-            putExtra(PlayerActivity.EXTRA_VIDEO_URI, video.path)
+            // Use content URI - PlayerActivity has proper DataSourceFactory now
+            putExtra(PlayerActivity.EXTRA_VIDEO_URI, video.uri.toString())
             putExtra(PlayerActivity.EXTRA_VIDEO_TITLE, video.title)
             putExtra(PlayerActivity.EXTRA_VIDEO_POSITION, videoIndex)
             putStringArrayListExtra(
                 PlayerActivity.EXTRA_PLAYLIST,
-                ArrayList(playlist.map { it.path }) // Use path instead of uri
+                ArrayList(playlist.map { it.uri.toString() })
             )
             putStringArrayListExtra(
                 PlayerActivity.EXTRA_PLAYLIST_TITLES,
                 ArrayList(playlist.map { it.title })
             )
+            // Grant read permission for content URIs
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         startActivity(intent)
     }
