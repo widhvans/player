@@ -206,22 +206,9 @@ class PlayerActivity : AppCompatActivity() {
             )
         }
         
-        // Create data source factory for network streams
-        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
-            .setAllowCrossProtocolRedirects(true)
-            .setConnectTimeoutMs(15000)
-            .setReadTimeoutMs(15000)
-            .setUserAgent("ProVideoPlayer/1.0")
-        
-        val dataSourceFactory = DefaultDataSource.Factory(this, httpDataSourceFactory)
-        
-        // Create media source factory with proper support for HLS, DASH, etc.
-        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
-        
-        // Build ExoPlayer with media source factory
+        // Build ExoPlayer - let ExoPlayer use default data sources which handle content:// properly
         player = ExoPlayer.Builder(this)
             .setTrackSelector(trackSelector)
-            .setMediaSourceFactory(mediaSourceFactory)
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -230,7 +217,6 @@ class PlayerActivity : AppCompatActivity() {
                 true // Handle audio focus
             )
             .setHandleAudioBecomingNoisy(true)
-            .setVideoScalingMode(C.VIDEO_SCALING_MODE_SCALE_TO_FIT)
             .build()
             .also { exoPlayer ->
                 binding.playerView.player = exoPlayer
@@ -259,7 +245,16 @@ class PlayerActivity : AppCompatActivity() {
             val mediaItems = playlist.mapNotNull { uriString ->
                 try {
                     val uri = Uri.parse(uriString)
-                    val mimeType = inferMimeType(uriString)
+                    
+                    // Get MIME type - use ContentResolver for content:// URIs
+                    val mimeType = when {
+                        uriString.startsWith("content://") -> {
+                            contentResolver.getType(uri) ?: inferMimeType(uriString)
+                        }
+                        else -> inferMimeType(uriString)
+                    }
+                    
+                    android.util.Log.d("PlayerActivity", "Loading URI: $uriString, MIME: $mimeType")
                     
                     MediaItem.Builder()
                         .setUri(uri)
@@ -279,6 +274,8 @@ class PlayerActivity : AppCompatActivity() {
                 Toast.makeText(this, "Failed to load video", Toast.LENGTH_SHORT).show()
                 return@let
             }
+            
+            android.util.Log.d("PlayerActivity", "Loaded ${mediaItems.size} media items")
             
             // Ensure currentIndex is valid
             val validIndex = currentIndex.coerceIn(0, mediaItems.size - 1)
