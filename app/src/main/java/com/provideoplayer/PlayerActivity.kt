@@ -249,30 +249,39 @@ class PlayerActivity : AppCompatActivity() {
             
             val mediaItems = playlist.mapNotNull { pathOrUri ->
                 try {
-                    // Determine if it's a file path or URI
-                    val uri = when {
-                        pathOrUri.startsWith("/") -> {
-                            // It's a file path
-                            Uri.fromFile(java.io.File(pathOrUri))
+                    val uri: Uri
+                    var debugInfo = "Processing: $pathOrUri\n"
+                    
+                    // Determine URI type and verify access
+                    when {
+                        pathOrUri.startsWith("content://") -> {
+                            uri = Uri.parse(pathOrUri)
+                            // Verify content URI is accessible
+                            try {
+                                contentResolver.openInputStream(uri)?.use { 
+                                    debugInfo += "Content URI accessible: YES\n"
+                                }
+                            } catch (e: Exception) {
+                                debugInfo += "Content URI accessible: NO - ${e.message}\n"
+                                android.util.Log.e("PlayerActivity", "Cannot access content URI", e)
+                            }
                         }
-                        pathOrUri.startsWith("content://") || pathOrUri.startsWith("http://") || pathOrUri.startsWith("https://") -> {
-                            // It's already a URI
-                            Uri.parse(pathOrUri)
+                        pathOrUri.startsWith("/") -> {
+                            val file = java.io.File(pathOrUri)
+                            debugInfo += "File exists: ${file.exists()}, readable: ${file.canRead()}\n"
+                            uri = Uri.fromFile(file)
                         }
                         else -> {
-                            // Try to parse as URI
-                            Uri.parse(pathOrUri)
+                            uri = Uri.parse(pathOrUri)
                         }
                     }
                     
-                    // Get MIME type
-                    val mimeType = when {
-                        pathOrUri.startsWith("/") -> inferMimeType(pathOrUri)
-                        pathOrUri.startsWith("content://") -> contentResolver.getType(uri) ?: inferMimeType(pathOrUri)
-                        else -> inferMimeType(pathOrUri)
-                    }
+                    // Get MIME type from ContentResolver or infer from extension
+                    val mimeType = contentResolver.getType(uri) ?: inferMimeType(pathOrUri)
+                    debugInfo += "MIME type: $mimeType\n"
+                    debugInfo += "Final URI: $uri\n"
                     
-                    android.util.Log.d("PlayerActivity", "Loading: $pathOrUri -> URI: $uri, MIME: $mimeType")
+                    android.util.Log.d("PlayerActivity", debugInfo)
                     
                     MediaItem.Builder()
                         .setUri(uri)
@@ -283,19 +292,20 @@ class PlayerActivity : AppCompatActivity() {
                         }
                         .build()
                 } catch (e: Exception) {
-                    android.util.Log.e("PlayerActivity", "Failed to parse: $pathOrUri", e)
+                    android.util.Log.e("PlayerActivity", "Failed to create MediaItem: $pathOrUri", e)
+                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                     null
                 }
             }
             
             if (mediaItems.isEmpty()) {
                 Toast.makeText(this, "Failed to load video", Toast.LENGTH_SHORT).show()
+                showDebugDialog()
                 return@let
             }
             
-            android.util.Log.d("PlayerActivity", "Loaded ${mediaItems.size} media items")
+            android.util.Log.d("PlayerActivity", "Setting ${mediaItems.size} media items")
             
-            // Ensure currentIndex is valid
             val validIndex = currentIndex.coerceIn(0, mediaItems.size - 1)
             exoPlayer.setMediaItems(mediaItems, validIndex, 0)
         }
