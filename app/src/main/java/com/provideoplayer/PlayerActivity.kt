@@ -295,7 +295,7 @@ class PlayerActivity : AppCompatActivity() {
             lowerUrl.contains(".ts") -> MimeTypes.VIDEO_MP2T
             lowerUrl.contains(".avi") -> MimeTypes.VIDEO_AVI
             lowerUrl.contains(".flv") -> MimeTypes.VIDEO_FLV
-            lowerUrl.contains(".3gp") -> MimeTypes.VIDEO_3GPP
+            lowerUrl.contains(".3gp") -> "video/3gpp"
             isNetworkStream -> MimeTypes.APPLICATION_M3U8 // Default to HLS for network streams
             else -> null
         }
