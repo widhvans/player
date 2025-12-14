@@ -36,7 +36,10 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.ui.PlayerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -203,9 +206,22 @@ class PlayerActivity : AppCompatActivity() {
             )
         }
         
-        // Build ExoPlayer
+        // Create data source factory for network streams
+        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
+            .setAllowCrossProtocolRedirects(true)
+            .setConnectTimeoutMs(15000)
+            .setReadTimeoutMs(15000)
+            .setUserAgent("ProVideoPlayer/1.0")
+        
+        val dataSourceFactory = DefaultDataSource.Factory(this, httpDataSourceFactory)
+        
+        // Create media source factory with proper support for HLS, DASH, etc.
+        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
+        
+        // Build ExoPlayer with media source factory
         player = ExoPlayer.Builder(this)
             .setTrackSelector(trackSelector)
+            .setMediaSourceFactory(mediaSourceFactory)
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -241,10 +257,18 @@ class PlayerActivity : AppCompatActivity() {
             val mediaItems = playlist.mapNotNull { uriString ->
                 try {
                     val uri = Uri.parse(uriString)
+                    val mimeType = inferMimeType(uriString)
+                    
                     MediaItem.Builder()
                         .setUri(uri)
+                        .apply {
+                            if (mimeType != null) {
+                                setMimeType(mimeType)
+                            }
+                        }
                         .build()
                 } catch (e: Exception) {
+                    android.util.Log.e("PlayerActivity", "Failed to parse URI: $uriString", e)
                     null
                 }
             }
@@ -257,6 +281,23 @@ class PlayerActivity : AppCompatActivity() {
             // Ensure currentIndex is valid
             val validIndex = currentIndex.coerceIn(0, mediaItems.size - 1)
             exoPlayer.setMediaItems(mediaItems, validIndex, 0)
+        }
+    }
+    
+    private fun inferMimeType(url: String): String? {
+        val lowerUrl = url.lowercase()
+        return when {
+            lowerUrl.contains(".m3u8") || lowerUrl.contains("m3u8") -> MimeTypes.APPLICATION_M3U8
+            lowerUrl.contains(".mpd") -> MimeTypes.APPLICATION_MPD
+            lowerUrl.contains(".mp4") -> MimeTypes.VIDEO_MP4
+            lowerUrl.contains(".mkv") -> MimeTypes.VIDEO_MATROSKA
+            lowerUrl.contains(".webm") -> MimeTypes.VIDEO_WEBM
+            lowerUrl.contains(".ts") -> MimeTypes.VIDEO_MP2T
+            lowerUrl.contains(".avi") -> MimeTypes.VIDEO_AVI
+            lowerUrl.contains(".flv") -> MimeTypes.VIDEO_FLV
+            lowerUrl.contains(".3gp") -> MimeTypes.VIDEO_3GPP
+            isNetworkStream -> MimeTypes.APPLICATION_M3U8 // Default to HLS for network streams
+            else -> null
         }
     }
 
